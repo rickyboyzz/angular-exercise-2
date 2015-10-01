@@ -5,14 +5,14 @@ app.factory('posts', [function(){
     posts: []
   };
   return o;
-}]); 
+}]);
 app.controller('MainCtrl', [
 '$scope',
 'posts',
 function($scope, posts){
   $scope.posts = posts.posts;
   $scope.test = 'Hello world!';
-  
+
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
   $scope.posts.push({title: $scope.title, upvotes: 0}
@@ -40,10 +40,9 @@ $scope.incrementUpvotes = function(post) {
 };
 $scope.addPost = function(){
   if(!$scope.title || $scope.title === '') { return; }
-  $scope.posts.push({
+  posts.create({
     title: $scope.title,
     link: $scope.link,
-    upvotes: 0
   });
   $scope.title = '';
   $scope.link = '';
@@ -85,3 +84,26 @@ $scope.addComment = function(){
   $scope.body = '';
 };
 }])
+
+o.getAll = function() {
+    return $http.get('/posts').success(function(data){
+      angular.copy(data, o.posts);
+    });
+  };
+  
+  app.factory('posts', ['$http', function($http){
+   .state('home', {
+  url: '/home',
+  templateUrl: '/home.html',
+  controller: 'MainCtrl',
+  resolve: {
+    postPromise: ['posts', function(posts){
+      return posts.getAll();
+    }]
+  }
+})
+});
+$scope.incrementUpvotes = function(post) {
+  posts.upvote(post);
+};
+<a href="#/posts/{{post._id}}">Comments</a>
